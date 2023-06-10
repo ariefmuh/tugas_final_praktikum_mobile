@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -93,30 +94,43 @@ public class MovieFragment extends Fragment {
                     hideLoading();
                     MovieResponse movieResponse = response.body();
                     List<Movie> movies = movieResponse.getMovies();
-                    List<Movie> sortMovies = movies;
+                    List<Movie> sortMovies = new ArrayList<>(movies);
                     movieAdapter.setMovies(movies);
 
-                    NameSort.setOnClickListener(view1 -> {
-                        Collections.sort(sortMovies, new Comparator<Movie>() {
-                            @Override
-                            public int compare(Movie favorite1, Movie favorite2) {
-                                return favorite1.getTitle().compareToIgnoreCase(favorite2.getTitle());
+                    AtomicBoolean isNameAscending = new AtomicBoolean(true);
+                    AtomicBoolean isVoteAscending = new AtomicBoolean(true);
+
+                    VoteSort.setOnClickListener(view1 -> {
+                        isNameAscending.set(false);
+                        isVoteAscending.set(!isVoteAscending.get());
+                        Collections.sort(sortMovies, (movie1, movie2) -> {
+                            if (isVoteAscending.get()) {
+                                return Double.compare(movie2.getVoteAverage(), movie1.getVoteAverage());
+                            } else {
+                                return Double.compare(movie1.getVoteAverage(), movie2.getVoteAverage());
                             }
                         });
+
                         movieAdapter.setMovies(sortMovies);
                     });
 
-                    VoteSort.setOnClickListener(view1 -> {
-                        Collections.sort(sortMovies, new Comparator<Movie>() {
-                            @Override
-                            public int compare(Movie favorite1, Movie favorite2) {
-                                return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+                    NameSort.setOnClickListener(view1 -> {
+                        isNameAscending.set(!isNameAscending.get());
+                        isVoteAscending.set(true);
+
+                        Collections.sort(sortMovies, (movie1, movie2) -> {
+                            if (isNameAscending.get()) {
+                                return movie1.getTitle().compareToIgnoreCase(movie2.getTitle());
+                            } else {
+                                return movie2.getTitle().compareToIgnoreCase(movie1.getTitle());
                             }
                         });
                         movieAdapter.setMovies(sortMovies);
                     });
 
                     ClearSort.setOnClickListener(view1 -> {
+                        isNameAscending.set(true);
+                        isVoteAscending.set(true);
                         movieAdapter.setMovies(movies);
                     });
 

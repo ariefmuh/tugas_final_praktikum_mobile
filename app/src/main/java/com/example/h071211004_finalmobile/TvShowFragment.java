@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -71,31 +72,43 @@ public class TvShowFragment extends Fragment {
                     hideLoading();
                     TvResponse tvResponse = response.body();
                     List<Tv> tvShows = tvResponse.getTvShows();
-                    List<Tv> sortTvs = tvShows;
+                    List<Tv> sortTvs = new ArrayList<>(tvShows);
                     setTvShows(tvShows);
 
+                    AtomicBoolean isNameAscending = new AtomicBoolean(true);
+                    AtomicBoolean isVoteAscending = new AtomicBoolean(true);
+
                     NameSort.setOnClickListener(view1 -> {
-                        Collections.sort(sortTvs, new Comparator<Tv>() {
-                            @Override
-                            public int compare(Tv favorite1, Tv favorite2) {
-                                return favorite1.getName().compareToIgnoreCase(favorite2.getName());
+                        isNameAscending.set(!isNameAscending.get());
+                        isVoteAscending.set(true);
+                        Collections.sort(sortTvs, (tvShow1, tvShow2) -> {
+                            if (isNameAscending.get()) {
+                                return tvShow1.getName().compareToIgnoreCase(tvShow2.getName());
+                            } else {
+                                return tvShow2.getName().compareToIgnoreCase(tvShow1.getName());
                             }
                         });
                         setTvShows(sortTvs);
                     });
 
                     VoteSort.setOnClickListener(view1 -> {
-                        Collections.sort(sortTvs, new Comparator<Tv>() {
-                            @Override
-                            public int compare(Tv favorite1, Tv favorite2) {
-                                return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+                        isNameAscending.set(false);
+                        isVoteAscending.set(!isVoteAscending.get());
+
+                        Collections.sort(sortTvs, (tvShow1, tvShow2) -> {
+                            if (isVoteAscending.get()) {
+                                return Double.compare(tvShow2.getVoteAverage(), tvShow1.getVoteAverage());
+                            } else {
+                                return Double.compare(tvShow1.getVoteAverage(), tvShow2.getVoteAverage());
                             }
                         });
                         setTvShows(sortTvs);
                     });
 
                     ClearSort.setOnClickListener(view1 -> {
-                        setTvShows(tvShows);
+                        isNameAscending.set(true);
+                        isVoteAscending.set(true);
+                        setTvShows(tvResponse.getTvShows());
                     });
 
                     search.addTextChangedListener(new TextWatcher() {

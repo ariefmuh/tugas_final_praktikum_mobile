@@ -16,13 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.h071211004_finalmobile.data.model.Favorite;
-import com.example.h071211004_finalmobile.data.model.Movie;
 import com.example.h071211004_finalmobile.database.DatabaseContract;
 import com.example.h071211004_finalmobile.database.DatabaseHelper;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class FavoriteFragment extends Fragment {
@@ -62,24 +59,42 @@ public class FavoriteFragment extends Fragment {
         FavoriteAdapter favoriteAdapter = new FavoriteAdapter(favoriteList);
         recyclerView.setAdapter(favoriteAdapter);
 
-        NameSort.setOnClickListener(view1 -> {
+        // WTF IS THIS IN CHATGPT ???
+        // Using it because Apparently can't use boolean in here so using atomicBoolean solve it
+        // Really though i just want to add this for ascending and descending reason if its just ascending it was okay
+        AtomicBoolean isNameAscending = new AtomicBoolean(true);
+        AtomicBoolean isVoteAscending = new AtomicBoolean(true);
+
+        VoteSort.setOnClickListener(view1 -> {
+            isNameAscending.set(!isNameAscending.get()); // THE PROBLEM WHY USING ATOMIC BOOLEAN
+            isVoteAscending.set(true);
+
             Collections.sort(favoriteList, new Comparator<Favorite>() {
                 @Override
                 public int compare(Favorite favorite1, Favorite favorite2) {
-                    return favorite1.getTitle().compareToIgnoreCase(favorite2.getTitle());
+                    if (isNameAscending.get()) {
+                        return Double.compare(favorite1.getVoteAverage(), favorite2.getVoteAverage());
+                    } else {
+                        return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+                    }
                 }
             });
+
             FavoriteAdapter adapter = new FavoriteAdapter(favoriteList);
             recyclerView.setAdapter(adapter);
         });
 
-        VoteSort.setOnClickListener(view1 -> {
-            Collections.sort(favoriteList, new Comparator<Favorite>() {
-                @Override
-                public int compare(Favorite favorite1, Favorite favorite2) {
-                    return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+        NameSort.setOnClickListener(view1 -> {
+            isNameAscending.set(!isNameAscending.get());
+            isVoteAscending.set(true);
+            Collections.sort(favoriteList, (favorite1, favorite2) -> {
+                if (isNameAscending.get()) {
+                    return favorite1.getTitle().compareToIgnoreCase(favorite2.getTitle());
+                } else {
+                    return favorite2.getTitle().compareToIgnoreCase(favorite1.getTitle());
                 }
             });
+
             FavoriteAdapter adapter = new FavoriteAdapter(favoriteList);
             recyclerView.setAdapter(adapter);
         });
