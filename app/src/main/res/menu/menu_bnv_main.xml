@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:icon="@drawable/ic_movie" android:id="@+id/navigation_movies" android:title="@string/movies"/>
+    <item android:icon="@drawable/ic_tv" android:id="@+id/navigation_tv_shows" android:title="@string/tv_shows"/>
+    <item android:icon="@drawable/ic_favorite_border" android:id="@+id/navigation_favorites" android:title="@string/favorites"/>
+</menu>
