@@ -17,7 +17,7 @@ import com.example.h071211004_finalmobile.database.DatabaseHelper;
 
 public class Film_Detail extends AppCompatActivity {
     private DatabaseHelper dbHelper;
-    private ImageView backdropImageView, backButton, favoriteButton, posterImageView, type;
+    private ImageView backdropImageView, backButton, favoriteButton, posterImageView, typeImageView;
     private TextView titleTextView, ratingTextView, synopsisTextView;
     boolean favorite = false;
 
@@ -25,7 +25,7 @@ public class Film_Detail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_film_detail);
 
-        type = findViewById(R.id.iv_type);
+        typeImageView = findViewById(R.id.iv_type);
         backdropImageView = findViewById(R.id.iv_backdrop);
         backButton = findViewById(R.id.btn_back);
         favoriteButton = findViewById(R.id.btn_favorite);
@@ -38,15 +38,14 @@ public class Film_Detail extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getParcelableExtra("movie") != null) {
             Movie movie = intent.getParcelableExtra("movie");
-            type.setImageResource(R.drawable.ic_movie);
-            handleFilmDetails(movie.getTitle(), movie.getVoteAverage().toString(), movie.getOverview(), movie.getPosterPath(), movie.getBackdropUrl(), movie.getId(), movie.getReleaseDate());
+            handleFilmDetails(movie.getTitle(), movie.getVoteAverage().toString(), movie.getOverview(), movie.getPosterPath(), movie.getBackdropUrl(), movie.getId(), movie.getReleaseDate(), R.drawable.ic_movie);
         } else if (intent.getParcelableExtra("show") != null) {
             Tv show = intent.getParcelableExtra("show");
-            type.setImageResource(R.drawable.ic_tv);
-            handleFilmDetails(show.getName(), show.getVoteAverage().toString(), show.getOverview(), show.getPosterUrl(), show.getBackdropUrl(), show.getId(), show.getName());
+            handleFilmDetails(show.getName(), show.getVoteAverage().toString(), show.getOverview(), show.getPosterUrl(), show.getBackdropUrl(), show.getId(), show.getName(), R.drawable.ic_tv);
         } else if (intent.getParcelableExtra("favorite") != null) {
             Favorite favorite = intent.getParcelableExtra("favorite");
-            handleFilmDetails(favorite.getTitle(), favorite.getVoteAverage().toString(), favorite.getOverview(), favorite.getPosterPath(), favorite.getBackdropUrl(), favorite.getId(), favorite.getTitle());
+
+            handleFilmDetails(favorite.getTitle(), favorite.getVoteAverage().toString(), favorite.getOverview(), favorite.getPosterPath(), favorite.getBackdropUrl(), favorite.getId(), favorite.getTitle(), R.drawable.ic_star);
         }
 
         backButton.setOnClickListener(view -> {
@@ -73,7 +72,7 @@ public class Film_Detail extends AppCompatActivity {
         }
     }
 
-    private void handleFilmDetails(String title, String voteAverage, String overview, String posterPath, String backdropPath, int id, String releaseDate) {
+    private void handleFilmDetails(String title, String voteAverage, String overview, String posterPath, String backdropPath, int id, String releaseDate, int type) {
         String posterUrl = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/" + posterPath;
         String backdropUrl = "https://image.tmdb.org/t/p/w300_and_h450_bestv2/" + backdropPath;
         titleTextView.setText(title);
@@ -81,6 +80,7 @@ public class Film_Detail extends AppCompatActivity {
         Glide.with(this).load(posterUrl).into(posterImageView);
         Glide.with(this).load(backdropUrl).into(backdropImageView);
         synopsisTextView.setText(overview);
+        typeImageView.setImageResource(type);
 
         if (dbHelper.isMovieInFavorites(title)) {
             favorite = !favorite;
