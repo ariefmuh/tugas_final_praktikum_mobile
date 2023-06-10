@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -17,10 +18,13 @@ import android.widget.Toast;
 
 import com.example.h071211004_finalmobile.data.TvShowService;
 import com.example.h071211004_finalmobile.data.model.Tv;
+import com.example.h071211004_finalmobile.data.model.Tv;
 import com.example.h071211004_finalmobile.data.model.TvResponse;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,6 +42,8 @@ public class TvShowFragment extends Fragment {
     private RecyclerView recyclerView;
     private TvShowAdapter tvAdapter;
     private TextInputEditText search;
+    private Button ClearSort, NameSort, VoteSort;
+
 
     public TvShowFragment() {
         // Required empty public constructor
@@ -65,7 +71,33 @@ public class TvShowFragment extends Fragment {
                     hideLoading();
                     TvResponse tvResponse = response.body();
                     List<Tv> tvShows = tvResponse.getTvShows();
+                    List<Tv> sortTvs = tvShows;
                     setTvShows(tvShows);
+
+                    NameSort.setOnClickListener(view1 -> {
+                        Collections.sort(sortTvs, new Comparator<Tv>() {
+                            @Override
+                            public int compare(Tv favorite1, Tv favorite2) {
+                                return favorite1.getName().compareToIgnoreCase(favorite2.getName());
+                            }
+                        });
+                        setTvShows(sortTvs);
+                    });
+
+                    VoteSort.setOnClickListener(view1 -> {
+                        Collections.sort(sortTvs, new Comparator<Tv>() {
+                            @Override
+                            public int compare(Tv favorite1, Tv favorite2) {
+                                return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+                            }
+                        });
+                        setTvShows(sortTvs);
+                    });
+
+                    ClearSort.setOnClickListener(view1 -> {
+                        setTvShows(tvShows);
+                    });
+
                     search.addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -107,6 +139,9 @@ public class TvShowFragment extends Fragment {
     }
 
     private void initializeViews(View view) {
+        ClearSort = view.findViewById(R.id.ClearSort);
+        NameSort = view.findViewById(R.id.SortByName);
+        VoteSort = view.findViewById(R.id.SortByVote);
         search = view.findViewById(R.id.et_search);
         progressBar = view.findViewById(R.id.progress_bar);
         tvAlert = view.findViewById(R.id.tv_alert);

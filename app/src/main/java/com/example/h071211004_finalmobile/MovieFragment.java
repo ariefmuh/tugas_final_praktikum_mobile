@@ -6,6 +6,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,12 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.h071211004_finalmobile.data.MovieService;
+import com.example.h071211004_finalmobile.data.model.Favorite;
 import com.example.h071211004_finalmobile.data.model.Movie;
 import com.example.h071211004_finalmobile.data.model.MovieResponse;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -39,7 +43,8 @@ public class MovieFragment extends Fragment {
     private ImageView btnRefresh;
     private RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
-    TextInputEditText search;
+    private Button ClearSort, NameSort, VoteSort;
+    private TextInputEditText search;
     public MovieFragment() {
         // Required empty public constructor
     }
@@ -49,6 +54,9 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_movie, container, false);
 
+        ClearSort = view.findViewById(R.id.ClearSort);
+        NameSort = view.findViewById(R.id.SortByName);
+        VoteSort = view.findViewById(R.id.SortByVote);
         progressBar = view.findViewById(R.id.progress_bar);
         tvAlert = view.findViewById(R.id.tv_alert);
         btnRefresh = view.findViewById(R.id.btn_refresh);
@@ -85,7 +93,33 @@ public class MovieFragment extends Fragment {
                     hideLoading();
                     MovieResponse movieResponse = response.body();
                     List<Movie> movies = movieResponse.getMovies();
+                    List<Movie> sortMovies = movies;
                     movieAdapter.setMovies(movies);
+
+                    NameSort.setOnClickListener(view1 -> {
+                        Collections.sort(sortMovies, new Comparator<Movie>() {
+                            @Override
+                            public int compare(Movie favorite1, Movie favorite2) {
+                                return favorite1.getTitle().compareToIgnoreCase(favorite2.getTitle());
+                            }
+                        });
+                        movieAdapter.setMovies(sortMovies);
+                    });
+
+                    VoteSort.setOnClickListener(view1 -> {
+                        Collections.sort(sortMovies, new Comparator<Movie>() {
+                            @Override
+                            public int compare(Movie favorite1, Movie favorite2) {
+                                return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+                            }
+                        });
+                        movieAdapter.setMovies(sortMovies);
+                    });
+
+                    ClearSort.setOnClickListener(view1 -> {
+                        movieAdapter.setMovies(movies);
+                    });
+
                     search.addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -102,6 +136,8 @@ public class MovieFragment extends Fragment {
                             performSearch(editable.toString(), movies);
                         }
                     });
+
+
                 } else {
                     showAlert();
                     Toast.makeText(getActivity(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();

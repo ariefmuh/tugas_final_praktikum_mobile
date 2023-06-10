@@ -49,6 +49,39 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <LinearLayout
+        android:id="@+id/sortButtonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/tf_search">
+
+        <Button
+            android:id="@+id/ClearSort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear Sort"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/SortByName" />
+
+        <Button
+            android:id="@+id/SortByName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sort by Name"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/SortByVote" />
+
+        <Button
+            android:id="@+id/SortByVote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sort by Vote"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_favorites"
         android:layout_width="match_parent"
@@ -58,7 +91,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tf_search" />
+        app:layout_constraintTop_toBottomOf="@+id/sortButtonsLayout" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

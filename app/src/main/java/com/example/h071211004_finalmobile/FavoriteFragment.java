@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,11 +28,14 @@ import com.example.h071211004_finalmobile.database.DatabaseHelper;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
 public class FavoriteFragment extends Fragment {
     RecyclerView recyclerView;
+    Button ClearSort, NameSort, VoteSort;
     ProgressBar progressBar;
     TextInputEditText search;
 
@@ -46,11 +50,45 @@ public class FavoriteFragment extends Fragment {
         progressBar = view.findViewById(R.id.progress_bar);
         hideLoading();
         search = view.findViewById(R.id.et_search);
+
+        ClearSort = view.findViewById(R.id.ClearSort);
+        NameSort = view.findViewById(R.id.SortByName);
+        VoteSort = view.findViewById(R.id.SortByVote);
         List<Favorite> favoriteList = getAllMoviesFromDatabase();
+
+
         recyclerView = view.findViewById(R.id.rv_favorites);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         FavoriteAdapter favoriteAdapter = new FavoriteAdapter(favoriteList);
         recyclerView.setAdapter(favoriteAdapter);
+
+        NameSort.setOnClickListener(view1 -> {
+            Collections.sort(favoriteList, new Comparator<Favorite>() {
+                @Override
+                public int compare(Favorite favorite1, Favorite favorite2) {
+                    return favorite1.getTitle().compareToIgnoreCase(favorite2.getTitle());
+                }
+            });
+            FavoriteAdapter adapter = new FavoriteAdapter(favoriteList);
+            recyclerView.setAdapter(adapter);
+        });
+
+        VoteSort.setOnClickListener(view1 -> {
+            Collections.sort(favoriteList, new Comparator<Favorite>() {
+                @Override
+                public int compare(Favorite favorite1, Favorite favorite2) {
+                    return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+                }
+            });
+            FavoriteAdapter adapter = new FavoriteAdapter(favoriteList);
+            recyclerView.setAdapter(adapter);
+        });
+
+        ClearSort.setOnClickListener(view1 -> {
+            List<Favorite> testList = getAllMoviesFromDatabase();
+            FavoriteAdapter adapter = new FavoriteAdapter(testList);
+            recyclerView.setAdapter(adapter);
+        });
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -116,6 +154,24 @@ public class FavoriteFragment extends Fragment {
         }
 
         return favoriteList;
+    }
+
+    private void sortFavoritesByName(List<Favorite> favorites) {
+        Collections.sort(favorites, new Comparator<Favorite>() {
+            @Override
+            public int compare(Favorite favorite1, Favorite favorite2) {
+                return favorite1.getTitle().compareToIgnoreCase(favorite2.getTitle());
+            }
+        });
+    }
+
+    private void sortFavoritesByVoteAverage(List<Favorite> favorites) {
+        Collections.sort(favorites, new Comparator<Favorite>() {
+            @Override
+            public int compare(Favorite favorite1, Favorite favorite2) {
+                return Double.compare(favorite2.getVoteAverage(), favorite1.getVoteAverage());
+            }
+        });
     }
 
     private void showLoading() {
